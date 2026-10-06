@@ -1,0 +1,33 @@
+{
+  "ref": { "owner": "acme", "repo": "widget", "number": 17 },
+  "state": "open",
+  "author": "reporter",
+  "assignees": [],
+  "labels": ["bug", "area: cli"],
+  "comments": [
+    {
+      "author": "reporter",
+      "association": "NONE",
+      "body": "Still happens on 2.3.1.",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "author": "early-bird",
+      "association": "CONTRIBUTOR",
+      "body": "Hi! I'd like to work on this if nobody else is.",
+      "createdAt": "2026-09-28T10:00:00Z"
+    },
+    {
+      "author": "maintainer-mo",
+      "association": "MEMBER",
+      "body": "Sure, go for it @early-bird.",
+      "createdAt": "2026-09-28T15:30:00Z"
+    },
+    {
+      "author": "new-contributor",
+      "association": "NONE",
+      "body": "can I take this?",
+      "createdAt": "2026-09-30T09:00:00Z"
+    }
+  ]
+}

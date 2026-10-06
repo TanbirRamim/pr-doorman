@@ -1,0 +1,46 @@
+{
+  "name": "pr-doorman",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "ncc build src/index.ts -o dist --license licenses.txt --minify",
+    "all": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "github-action",
+    "pull-request",
+    "triage",
+    "maintainers",
+    "spam"
+  ],
+  "author": "Tanbir Hossain Ramim (https://github.com/TanbirRamim)",
+  "license": "MIT",
+  "description": "Rule-based, claim-aware pull request triage for GitHub. No AI.",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^20.19.43",
+    "@vercel/ncc": "^0.45.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.9",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^3.2.7"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TanbirRamim/pr-doorman.git"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

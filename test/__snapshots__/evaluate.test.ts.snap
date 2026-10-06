@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderComment > lists warn and fail items with fixes, hides notes, and carries the marker 1`] = `
+"<!-- pr-doorman:sticky -->
+Thanks for the pull request, @new-contributor. Before a maintainer reviews it, one thing needs a look:
+
+#### Needs a linked issue **[please check]**
+
+This pull request doesn't say which issue it fixes.
+
+Add a line like \`Closes #123\` to the description. If there is no issue yet, please open one first so the change can be discussed before you spend time on it.
+
+Passed: diff scope.
+
+<sub>This comment is from [pr-doorman](https://github.com/TanbirRamim/pr-doorman#readme), a set of plain rules the maintainers turned on. It doesn't use AI. It updates itself when you edit or push to the pull request.</sub>"
+`;

@@ -1,0 +1,116 @@
+name: 'PR Doorman'
+description: 'Rule-based, claim-aware pull request checks. Flags PRs with no linked issue, issues already claimed by someone else, and PR bursts. No AI.'
+author: 'Tanbir Hossain Ramim'
+branding:
+  icon: 'log-in'
+  color: 'gray-dark'
+
+inputs:
+  github-token:
+    description: 'Token used for API calls. The default GITHUB_TOKEN is enough.'
+    default: ${{ github.token }}
+
+  # Checks. Each takes a severity: off, note, warn or fail.
+  linked-issue:
+    description: 'Severity when the PR does not link an issue with a closing keyword (Closes #N).'
+    default: 'warn'
+  claim:
+    description: 'Severity when the linked issue was claimed by or assigned to someone else first.'
+    default: 'warn'
+  pr-burst:
+    description: 'Severity when the author opened more than pr-burst-threshold PRs across GitHub in the last 24 hours.'
+    default: 'warn'
+  template:
+    description: 'Severity when the PR template was deleted or none of its checkboxes are ticked.'
+    default: 'warn'
+  account:
+    description: 'Severity when the account is younger than account-min-age-days and has no merged PRs anywhere.'
+    default: 'note'
+  diff-scope:
+    description: 'Severity for changes outside the paths mapped to the linked issue labels, or very large first contributions.'
+    default: 'note'
+
+  # Claim settings
+  claim-phrases:
+    description: 'Extra regexes (one per line, case-insensitive) that count as claiming an issue. Added to the built-in English phrases.'
+    default: ''
+  claim-phrases-replace:
+    description: 'Use only claim-phrases and drop the built-in phrases.'
+    default: 'false'
+  claim-expiry-days:
+    description: 'A comment claim expires after this many days without activity from the claimer. Assignments never expire.'
+    default: '7'
+  claim-requires-ack:
+    description: 'Only count comment claims that a maintainer replied to.'
+    default: 'true'
+  require-claim:
+    description: 'Flag PRs whose author never claimed the linked issue.'
+    default: 'false'
+  maintainer-associations:
+    description: 'Author associations that count as maintainers when acknowledging claims.'
+    default: 'OWNER, MEMBER, COLLABORATOR'
+
+  # Other check settings
+  pr-burst-threshold:
+    description: 'Flag when the author opened more than this many PRs in the last 24 hours.'
+    default: '10'
+  pr-burst-allowlist:
+    description: 'Logins excluded from the pr-burst check only (comma or newline separated).'
+    default: ''
+  template-path:
+    description: 'Path to the PR template in the base repo. Empty means look in the usual places.'
+    default: ''
+  account-min-age-days:
+    description: 'Accounts younger than this with zero merged PRs are noted by the account check.'
+    default: '14'
+  diff-scope-paths:
+    description: 'Lines of "issue-label: glob, glob". When the linked issue has a mapped label, changed files must match one of its globs.'
+    default: ''
+  large-diff-lines:
+    description: 'Changed lines (additions + deletions) above which a first-time contributor PR is flagged by diff-scope.'
+    default: '1000'
+
+  # Who is skipped
+  allowlist:
+    description: 'Logins that skip all checks (comma or newline separated). Bots are always skipped.'
+    default: ''
+  skip-associations:
+    description: 'Author associations that skip all checks.'
+    default: 'OWNER, MEMBER, COLLABORATOR'
+
+  # What happens
+  comment:
+    description: 'Post or update one sticky comment on the PR.'
+    default: 'true'
+  comment-on-pass:
+    description: 'Also post a comment when nothing was flagged. An existing comment is always updated.'
+    default: 'false'
+  add-labels:
+    description: 'Add labels for flagged warn/fail checks and remove them once they pass.'
+    default: 'true'
+  labels:
+    description: 'Override label names, one "key: label" per line. Keys: needs-issue, claimed-by-other, not-claimed, pr-burst, template-missing, template-unchecked, new-account, out-of-scope, large-diff.'
+    default: ''
+  close-on-fail:
+    description: 'Close the PR when a check with severity fail is flagged.'
+    default: 'false'
+  fail-job:
+    description: 'Mark the job as failed when a check with severity fail is flagged.'
+    default: 'true'
+  dry-run:
+    description: 'Run all checks and log the result, but do not comment, label or close.'
+    default: 'false'
+
+outputs:
+  result:
+    description: 'pass, note, warn, fail, or skipped.'
+  failed-checks:
+    description: 'Comma-separated ids of flagged checks with severity fail.'
+  flagged-checks:
+    description: 'Comma-separated ids of all flagged checks.'
+  labels:
+    description: 'Comma-separated labels this run wanted on the PR.'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
