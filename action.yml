@@ -75,7 +75,7 @@ inputs:
     description: 'Logins that skip all checks (comma or newline separated). Bots are always skipped.'
     default: ''
   skip-associations:
-    description: 'Author associations that skip all checks.'
+    description: 'Author associations that skip all checks. Use "none" to run checks for everyone.'
     default: 'OWNER, MEMBER, COLLABORATOR'
 
   # What happens

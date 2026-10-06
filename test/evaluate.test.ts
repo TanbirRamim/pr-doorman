@@ -115,6 +115,11 @@ describe('skipReason', () => {
     expect(skipReason(prFacts({ authorAssociation: 'CONTRIBUTOR' }), config())).toBeNull();
   });
 
+  it('treats skip-associations "none" as skipping nobody', () => {
+    expect(skipReason(prFacts({ authorAssociation: 'OWNER' }), config({ 'skip-associations': 'none' }))).toBeNull();
+    expect(skipReason(prFacts({ authorAssociation: 'NONE' }), config({ 'skip-associations': 'none' }))).toBeNull();
+  });
+
   it('respects custom skip-associations', () => {
     expect(
       skipReason(prFacts({ authorAssociation: 'COLLABORATOR' }), config({ 'skip-associations': 'OWNER' })),

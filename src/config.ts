@@ -172,7 +172,13 @@ export function parseConfig(getInput: GetInput): Config {
   return {
     severity: sev,
     allowlist: lower(list(getInput('allowlist'))),
-    skipAssociations: skipRaw.trim() ? upper(list(skipRaw)) : ['OWNER', 'MEMBER', 'COLLABORATOR'],
+    // "none" means nobody is skipped by association (NONE is also a real association, so it can't be listed).
+    skipAssociations:
+      skipRaw.trim().toLowerCase() === 'none'
+        ? []
+        : skipRaw.trim()
+          ? upper(list(skipRaw))
+          : ['OWNER', 'MEMBER', 'COLLABORATOR'],
     maintainerAssociations: maintRaw.trim() ? upper(list(maintRaw)) : ['OWNER', 'MEMBER', 'COLLABORATOR'],
 
     claimPhrases: regexes('claim-phrases', phraseSources),
