@@ -4,6 +4,8 @@ All notable changes to this project are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.2.0]
+
 ### Changed
 
 - The action now runs on the `node24` runtime instead of `node20`, which GitHub has deprecated for actions. Self-hosted runners need runner v2.327.1 or newer.
