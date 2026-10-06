@@ -1,6 +1,6 @@
 # pr-doorman
 
-[![CI](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml/badge.svg)](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml)
+[![CI](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml/badge.svg)](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml) [![Marketplace](https://img.shields.io/badge/Marketplace-PR%20Doorman-blue?logo=github)](https://github.com/marketplace/actions/pr-doorman)
 
 pr-doorman is a GitHub Action that looks at each new pull request and checks a few things maintainers otherwise check by hand: is there a linked issue, did someone else already claim that issue, is the author opening dozens of PRs a day, was the PR template deleted. It leaves one comment that explains what to fix, adds labels you can filter on, and updates both when the PR changes. Every check is a plain rule you can read in `src/checks/`. It never sends your code or PR text to an AI model.
 
