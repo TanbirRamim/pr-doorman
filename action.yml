@@ -112,5 +112,5 @@ outputs:
     description: 'Comma-separated labels this run wanted on the PR.'
 
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'

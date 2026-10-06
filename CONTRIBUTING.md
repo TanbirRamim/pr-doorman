@@ -17,7 +17,7 @@ Typo fixes and small doc changes don't need an issue.
 
 ## Development
 
-You need Node 20 or newer.
+You need Node 24 or newer.
 
 ```sh
 npm ci
