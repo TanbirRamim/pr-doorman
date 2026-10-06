@@ -4,7 +4,7 @@
 
 pr-doorman is a GitHub Action that looks at each new pull request and checks a few things maintainers otherwise check by hand: is there a linked issue, did someone else already claim that issue, is the author opening dozens of PRs a day, was the PR template deleted. It leaves one comment that explains what to fix, adds labels you can filter on, and updates both when the PR changes. Every check is a plain rule you can read in `src/checks/`. It never sends your code or PR text to an AI model.
 
-I built it after two people on one of my repos ended up working on the same issue. One had commented "can I take this?" and got a yes, the other opened a PR a day later without reading the thread. Nobody did anything wrong on purpose, but one of them wasted their time. The claim check exists so that gets caught when the PR is opened, not after review.
+I built it after a mix-up on one of my repos. Someone commented on an issue asking to take it, someone else opened a PR for the same issue a few hours later, and I merged the PR before I saw the comment. Nobody did anything wrong on purpose, but one person's time got wasted and I had to apologise. The claim check exists so that shows up on the PR itself, before anyone reviews or merges it.
 
 ## What the comment looks like
 
