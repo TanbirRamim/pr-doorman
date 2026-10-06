@@ -1,6 +1,6 @@
 # pr-doorman
 
-[![CI](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml/badge.svg)](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml) [![Marketplace](https://img.shields.io/badge/Marketplace-PR%20Doorman-blue?logo=github)](https://github.com/marketplace/actions/pr-doorman)
+[![CI](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml/badge.svg)](https://github.com/TanbirRamim/pr-doorman/actions/workflows/ci.yml) [![Marketplace](https://img.shields.io/badge/Marketplace-PR%20Doorman-blue?logo=github)](https://github.com/marketplace/actions/pr-doorman) [![Release](https://img.shields.io/github/v/release/TanbirRamim/pr-doorman)](https://github.com/TanbirRamim/pr-doorman/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 pr-doorman is a GitHub Action that looks at each new pull request and checks a few things maintainers otherwise check by hand: is there a linked issue, did someone else already claim that issue, is the author opening dozens of PRs a day, was the PR template deleted. It leaves one comment that explains what to fix, adds labels you can filter on, and updates both when the PR changes. Every check is a plain rule you can read in `src/checks/`. It never sends your code or PR text to an AI model.
 
@@ -8,7 +8,11 @@ I built it after a mix-up on one of my repos. Someone commented on an issue aski
 
 ## What the comment looks like
 
-When something is flagged, the PR gets a single comment like this (it's edited in place on every push, never reposted):
+When something is flagged, the PR gets a single comment like this one from a [real run on the demo repo](https://github.com/TanbirRamim/pr-doorman-demo/pull/1). It's edited in place on every push, never reposted.
+
+<img src="docs/comment.png" alt="pr-doorman comment on a pull request with no linked issue and an empty checklist" width="700">
+
+A claimed issue looks like this:
 
 > Thanks for the pull request, @new-contributor. Before a maintainer reviews it, 2 things need a look:
 >
