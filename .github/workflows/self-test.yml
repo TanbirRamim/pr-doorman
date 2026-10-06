@@ -1,0 +1,26 @@
+# Runs the action from this checkout against the current PR in dry-run mode.
+# This uses pull_request (not pull_request_target) on purpose: it runs code
+# from the PR branch, so it must not get a write token.
+name: Self-test
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: doorman
+        uses: ./
+        with:
+          dry-run: true
+          skip-associations: 'none'
+          fail-job: false
+      - run: echo "result=${{ steps.doorman.outputs.result }} flagged=${{ steps.doorman.outputs.flagged-checks }}"

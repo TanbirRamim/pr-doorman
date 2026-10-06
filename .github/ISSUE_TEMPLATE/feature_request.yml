@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest a new check or a change to an existing one.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you running into?
+      description: Real examples help a lot, like the kind of PRs you keep closing by hand.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like pr-doorman to do?
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: How would the rule work?
+      description: pr-doorman only does rules you can explain in a sentence or two, no AI or scoring models. What data would it look at?
