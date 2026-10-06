@@ -4,6 +4,12 @@ All notable changes to this project are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Changed
+
+- Shorter action description so the action can be listed on the GitHub Marketplace.
+
 ## [0.2.0]
 
 ### Changed

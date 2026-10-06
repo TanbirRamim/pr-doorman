@@ -1,5 +1,5 @@
 name: 'PR Doorman'
-description: 'Rule-based, claim-aware pull request checks. Flags PRs with no linked issue, issues already claimed by someone else, and PR bursts. No AI.'
+description: 'Claim-aware PR checks: linked issue, issue already claimed by someone else, PR bursts, empty templates. No AI.'
 author: 'Tanbir Hossain Ramim'
 branding:
   icon: 'log-in'
