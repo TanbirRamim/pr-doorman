@@ -21,7 +21,7 @@
   "license": "MIT",
   "description": "Rule-based, claim-aware pull request triage for GitHub. No AI.",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^3.0.1",
     "@actions/github": "^6.0.1"
   },
   "devDependencies": {
