@@ -21,8 +21,8 @@
   "license": "MIT",
   "description": "Rule-based, claim-aware pull request triage for GitHub. No AI.",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -41,9 +41,6 @@
     "url": "git+https://github.com/TanbirRamim/pr-doorman.git"
   },
   "engines": {
-    "node": ">=20"
-  },
-  "overrides": {
-    "undici": "^6.29.0"
+    "node": ">=24"
   }
 }
