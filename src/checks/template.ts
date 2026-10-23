@@ -8,20 +8,27 @@ export interface Checkbox {
   text: string;
 }
 
+function stripComments(s: string): string {
+  let prev: string;
+  do {
+    prev = s;
+    s = s.replace(/<!--[\s\S]*?-->/g, '');
+  } while (s !== prev);
+  return s;
+}
+
 const norm = (s: string): string =>
-  s
-    .toLowerCase()
-    .replace(/<!--[\s\S]*?-->/g, '')
+  stripComments(s.toLowerCase())
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim();
 
 export function parseCheckboxes(markdown: string): Checkbox[] {
-  const text = markdown.replace(/<!--[\s\S]*?-->/g, '');
+  const text = stripComments(markdown);
   return [...text.matchAll(CHECKBOX_RE)].map((m) => ({ checked: m[1] !== ' ', text: norm(m[2]) }));
 }
 
 function headings(markdown: string): string[] {
-  return [...markdown.replace(/<!--[\s\S]*?-->/g, '').matchAll(HEADING_RE)].map((m) => norm(m[1]));
+  return [...stripComments(markdown).matchAll(HEADING_RE)].map((m) => norm(m[1]));
 }
 
 export interface TemplateInput {
