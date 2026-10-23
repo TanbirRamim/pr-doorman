@@ -67,7 +67,9 @@ export function renderSummary(
   out.push('| Check | Status | Severity | Details |', '| --- | --- | --- | --- |');
   for (const r of ev.results) {
     const status = r.status === 'flag' ? 'flagged' : STATUS_TEXT[r.status];
-    out.push(`| ${r.id} | ${status} | ${r.severity} | ${r.detail.replace(/\|/g, '\\|').replace(/\n/g, ' ')} |`);
+    out.push(
+      `| ${r.id} | ${status} | ${r.severity} | ${r.detail.replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' ')} |`,
+    );
   }
   if (ev.labelsToAdd.length) out.push('', `Labels: ${ev.labelsToAdd.map((l) => `\`${l}\``).join(', ')}`);
   return out.join('\n');
