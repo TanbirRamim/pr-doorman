@@ -67,7 +67,32 @@ export async function getClosingRefs(octokit: Octokit, pr: PullRequestFacts): Pr
   }
 }
 
-export async function getLinkedIssue(octokit: Octokit, ref: IssueRef): Promise<LinkedIssue | null> {
+/** Latest `assigned` event per current assignee. Older timeline pages are capped like comments. */
+export async function getAssignedAt(octokit: Octokit, ref: IssueRef): Promise<Record<string, string>> {
+  let pages = 0;
+  const events = await octokit.paginate(
+    octokit.rest.issues.listEventsForTimeline,
+    { owner: ref.owner, repo: ref.repo, issue_number: ref.number, per_page: 100 },
+    (response, done) => {
+      if (++pages >= MAX_COMMENT_PAGES) done();
+      return response.data;
+    },
+  );
+  const out: Record<string, string> = {};
+  for (const e of events as { event?: string; assignee?: { login?: string } | null; created_at?: string }[]) {
+    const login = e.assignee?.login?.toLowerCase();
+    if (!login || !e.created_at) continue;
+    if (e.event === 'assigned') out[login] = e.created_at;
+    else if (e.event === 'unassigned') delete out[login];
+  }
+  return out;
+}
+
+export async function getLinkedIssue(
+  octokit: Octokit,
+  ref: IssueRef,
+  withTimeline = false,
+): Promise<LinkedIssue | null> {
   const { data: issue } = await octokit.rest.issues.get({ owner: ref.owner, repo: ref.repo, issue_number: ref.number });
   if (issue.pull_request) return null; // "Closes #N" pointing at another PR
 
@@ -81,8 +106,18 @@ export async function getLinkedIssue(octokit: Octokit, ref: IssueRef): Promise<L
     },
   );
 
+  let assignedAt: Record<string, string> | undefined;
+  if (withTimeline && (issue.assignees ?? []).length > 0) {
+    try {
+      assignedAt = await getAssignedAt(octokit, ref);
+    } catch {
+      assignedAt = undefined; // fall back to assignments that never expire
+    }
+  }
+
   return {
     ref,
+    ...(assignedAt ? { assignedAt } : {}),
     state: issue.state === 'closed' ? 'closed' : 'open',
     author: issue.user?.login ?? '',
     assignees: (issue.assignees ?? []).map((a) => a.login),
@@ -163,7 +198,9 @@ export async function gatherFacts(
   const needsIssue = on('claim') || (on('diff-scope') && Object.keys(config.diffScopePaths).length > 0);
   if (needsIssue) {
     const [first] = allClosingRefs({ body: pr.body, owner: pr.owner, repo: pr.repo, closingRefs: facts.closingRefs });
-    facts.linkedIssue = first ? await fetched(() => getLinkedIssue(octokit, first)) : { ok: true, value: null };
+    facts.linkedIssue = first
+      ? await fetched(() => getLinkedIssue(octokit, first, on('claim') && config.assignmentExpiry))
+      : { ok: true, value: null };
   }
 
   if (on('diff-scope') && Object.keys(config.diffScopePaths).length > 0) {

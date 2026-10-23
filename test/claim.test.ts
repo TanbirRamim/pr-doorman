@@ -200,3 +200,51 @@ describe('checkClaim', () => {
     expect(checkClaim(input({ linkedIssue: undefined }))).toBeNull();
   });
 });
+
+describe('assignment expiry', () => {
+  const assigned = (when: string, comments: IssueComment[] = []) =>
+    issue({ assignees: ['Someone'], assignedAt: { someone: when }, comments });
+
+  it('keeps old assignments when assignment-expiry is off', () => {
+    const r = checkClaim(input({ linkedIssue: { ok: true, value: assigned('2026-08-01T00:00:00Z') } }));
+    expect(r).toMatchObject({ status: 'flag', title: 'Issue is assigned to someone else' });
+  });
+
+  it('expires an assignment with no recent activity', () => {
+    const r = checkClaim(
+      input({ assignmentExpiry: true, linkedIssue: { ok: true, value: assigned('2026-09-01T00:00:00Z') } }),
+    );
+    expect(r?.status).toBe('pass');
+    expect(r?.detail).toContain('@Someone expired after 7 days');
+  });
+
+  it('keeps a fresh assignment', () => {
+    const r = checkClaim(
+      input({ assignmentExpiry: true, linkedIssue: { ok: true, value: assigned('2026-09-28T00:00:00Z') } }),
+    );
+    expect(r?.status).toBe('flag');
+  });
+
+  it('counts the assignee commenting as activity, but not after the PR', () => {
+    const recent = [c('someone', 'still on it', '2026-09-29T00:00:00Z')];
+    const late = [c('someone', 'still on it', '2026-10-02T00:00:00Z')];
+    const run = (cs: IssueComment[]) =>
+      checkClaim(
+        input({ assignmentExpiry: true, linkedIssue: { ok: true, value: assigned('2026-09-01T00:00:00Z', cs) } }),
+      );
+    expect(run(recent)?.status).toBe('flag');
+    expect(run(late)?.status).toBe('pass');
+  });
+
+  it('treats assignees without timeline data as active', () => {
+    const i = issue({ assignees: ['Someone'], assignedAt: {}, comments: [] });
+    expect(checkClaim(input({ assignmentExpiry: true, linkedIssue: { ok: true, value: i } }))?.status).toBe('flag');
+  });
+
+  it('still checks comment claims once the assignment expired', () => {
+    const i = issue({ assignees: ['Someone'], assignedAt: { someone: '2026-09-01T00:00:00Z' } });
+    const r = checkClaim(input({ assignmentExpiry: true, linkedIssue: { ok: true, value: i } }));
+    const plain = checkClaim(input({ linkedIssue: { ok: true, value: issue() } }));
+    expect(r?.status).toBe(plain?.status);
+  });
+});

@@ -95,6 +95,16 @@ export function findClaims(issue: LinkedIssue, opts: ClaimOptions): Claim[] {
   return [...claims.values()];
 }
 
+/** Latest of `since` and the user's comments on the issue before the PR. */
+function lastActivityBefore(issue: LinkedIssue, login: string, since: string, prTime: number): string {
+  let last = since;
+  for (const c of issue.comments) {
+    const t = Date.parse(c.createdAt);
+    if (c.author.toLowerCase() === login.toLowerCase() && t <= prTime && t > Date.parse(last)) last = c.createdAt;
+  }
+  return last;
+}
+
 export interface ClaimInput {
   author: string;
   prCreatedAt: string;
@@ -105,6 +115,8 @@ export interface ClaimInput {
   maintainerAssociations: string[];
   expiryDays: number;
   requiresAck: boolean;
+  /** Let assignments expire like comment claims, using issue.assignedAt. */
+  assignmentExpiry?: boolean;
   requireClaim: boolean;
   severity: Severity;
 }
@@ -121,13 +133,23 @@ export function checkClaim(input: ClaimInput): CheckResult | null {
 
   const ref = formatRef(issue.ref, input.owner, input.repo);
   const author = input.author.toLowerCase();
-  const assignees = issue.assignees.map((a) => a.toLowerCase());
+  const prTime = Date.parse(input.prCreatedAt);
+  const expired = (lastActivity: string): boolean => prTime - Date.parse(lastActivity) > input.expiryDays * DAY_MS;
 
-  if (assignees.includes(author)) {
+  if (issue.assignees.some((a) => a.toLowerCase() === author)) {
     return { ...base, status: 'pass', detail: `${ref} is assigned to @${input.author}.` };
   }
-  if (assignees.length > 0) {
-    const who = issue.assignees.map((a) => `@${a}`).join(', ');
+  const stale: string[] = [];
+  const active = issue.assignees.filter((a) => {
+    const when = input.assignmentExpiry ? issue.assignedAt?.[a.toLowerCase()] : undefined;
+    if (!when) return true; // no timeline data: assignment never expires
+    const last = lastActivityBefore(issue, a, when, prTime);
+    if (!expired(last)) return true;
+    stale.push(a);
+    return false;
+  });
+  if (active.length > 0) {
+    const who = active.map((a) => `@${a}`).join(', ');
     return {
       ...base,
       status: 'flag',
@@ -138,17 +160,19 @@ export function checkClaim(input: ClaimInput): CheckResult | null {
     };
   }
 
-  const claims = findClaims(issue, {
-    phrases: input.phrases,
-    maintainerAssociations: input.maintainerAssociations,
-    before: input.prCreatedAt,
-  });
-  const prTime = Date.parse(input.prCreatedAt);
+  const claims = findClaims(
+    { ...issue, assignees: [] },
+    {
+      phrases: input.phrases,
+      maintainerAssociations: input.maintainerAssociations,
+      before: input.prCreatedAt,
+    },
+  );
   const own = claims.find((c) => c.user === author);
   const others = claims
     .filter((c) => c.user !== author)
     .filter((c) => !input.requiresAck || c.acknowledged)
-    .filter((c) => prTime - Date.parse(c.lastActivity) <= input.expiryDays * DAY_MS)
+    .filter((c) => !expired(c.lastActivity))
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
   const first = others[0];
@@ -177,9 +201,12 @@ export function checkClaim(input: ClaimInput): CheckResult | null {
     };
   }
 
+  const staleNote = stale.length
+    ? ` The assignment of ${stale.map((a) => `@${a}`).join(', ')} expired after ${input.expiryDays} days without activity.`
+    : '';
   return {
     ...base,
     status: 'pass',
-    detail: own ? `@${input.author} claimed ${ref}.` : `Nobody else has an active claim on ${ref}.`,
+    detail: (own ? `@${input.author} claimed ${ref}.` : `Nobody else has an active claim on ${ref}.`) + staleNote,
   };
 }

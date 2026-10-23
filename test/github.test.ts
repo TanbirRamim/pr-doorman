@@ -150,3 +150,45 @@ describe('toPullRequestFacts', () => {
     });
   });
 });
+
+describe('assignment timeline', () => {
+  function withAssignee() {
+    const fake = fakeOctokit();
+    const listEventsForTimeline = vi.fn();
+    const rest = fake.rest as unknown as { issues: Record<string, unknown> };
+    rest.issues.listEventsForTimeline = listEventsForTimeline;
+    (rest.issues.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { state: 'open', user: { login: 'reporter' }, assignees: [{ login: 'Someone' }], labels: [] },
+    });
+    const paginate = (fake.octokit as unknown as { paginate: ReturnType<typeof vi.fn> }).paginate;
+    const base = paginate.getMockImplementation() as (...a: unknown[]) => Promise<unknown>;
+    paginate.mockImplementation((fn: unknown, ...args: unknown[]) =>
+      fn === listEventsForTimeline
+        ? Promise.resolve([
+            { event: 'assigned', assignee: { login: 'Someone' }, created_at: '2026-09-01T00:00:00Z' },
+            { event: 'unassigned', assignee: { login: 'Someone' }, created_at: '2026-09-02T00:00:00Z' },
+            { event: 'assigned', assignee: { login: 'Someone' }, created_at: '2026-09-03T00:00:00Z' },
+            { event: 'commented', created_at: '2026-09-04T00:00:00Z' },
+          ])
+        : base(fn, ...args),
+    );
+    return { ...fake, listEventsForTimeline };
+  }
+
+  it('reads the latest assigned event only when assignment-expiry is on', async () => {
+    const off = withAssignee();
+    const f1 = await gatherFacts(off.octokit, prFacts(), 'main', config(), new Date('2026-10-01T12:00:00Z'));
+    expect(f1.linkedIssue).toMatchObject({ ok: true });
+    expect(f1.linkedIssue?.ok && f1.linkedIssue.value?.assignedAt).toBeUndefined();
+
+    const on = withAssignee();
+    const f2 = await gatherFacts(
+      on.octokit,
+      prFacts(),
+      'main',
+      config({ 'assignment-expiry': 'true' }),
+      new Date('2026-10-01T12:00:00Z'),
+    );
+    expect(f2.linkedIssue?.ok && f2.linkedIssue.value?.assignedAt).toEqual({ someone: '2026-09-03T00:00:00Z' });
+  });
+});
