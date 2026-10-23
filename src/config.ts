@@ -9,6 +9,7 @@ export interface Config {
   claimPhrases: RegExp[];
   claimExpiryDays: number;
   claimRequiresAck: boolean;
+  assignmentExpiry: boolean;
   requireClaim: boolean;
 
   burstThreshold: number;
@@ -184,6 +185,7 @@ export function parseConfig(getInput: GetInput): Config {
     claimPhrases: regexes('claim-phrases', phraseSources),
     claimExpiryDays: int('claim-expiry-days', getInput('claim-expiry-days'), 7),
     claimRequiresAck: bool('claim-requires-ack', getInput('claim-requires-ack'), true),
+    assignmentExpiry: bool('assignment-expiry', getInput('assignment-expiry'), false),
     requireClaim: bool('require-claim', getInput('require-claim'), false),
 
     burstThreshold: int('pr-burst-threshold', getInput('pr-burst-threshold'), 10),

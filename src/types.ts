@@ -44,6 +44,8 @@ export interface LinkedIssue {
   assignees: string[];
   labels: string[];
   comments: IssueComment[];
+  /** Lowercased login -> when they were last assigned, from the issue timeline. Only set with assignment-expiry. */
+  assignedAt?: Record<string, string>;
 }
 
 export interface PullRequestFacts {

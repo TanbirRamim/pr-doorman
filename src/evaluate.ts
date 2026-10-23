@@ -43,6 +43,7 @@ export function runChecks(facts: Facts, config: Config): CheckResult[] {
       maintainerAssociations: config.maintainerAssociations,
       expiryDays: config.claimExpiryDays,
       requiresAck: config.claimRequiresAck,
+      assignmentExpiry: config.assignmentExpiry,
       requireClaim: config.requireClaim,
       severity: s.claim,
     }),

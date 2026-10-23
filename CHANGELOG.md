@@ -4,6 +4,10 @@ All notable changes to this project are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `assignment-expiry` input (off by default). When on, an assignment expires `claim-expiry-days` after the assignee was assigned or last commented, read from the issue timeline. One extra API call, only when the claim check is on and the issue has assignees.
+
 ## [0.2.1]
 
 ### Changed

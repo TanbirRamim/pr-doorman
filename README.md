@@ -97,7 +97,7 @@ Each check takes a severity:
 
 pr-doorman reads the comments on the linked issue (the first one, if the PR closes several) and works out who has a claim on it:
 
-1. Assignees always have a claim. Assignment doesn't expire.
+1. Assignees always have a claim. By default an assignment doesn't expire. With `assignment-expiry: true` it expires `claim-expiry-days` after the assignment (read from the issue timeline) or the assignee's last comment, whichever is later.
 2. A comment matching a claim phrase is a claim. By default it only counts if a maintainer (`OWNER`, `MEMBER` or `COLLABORATOR` association) replied afterwards, either mentioning the claimer or with no mentions at all before anyone else asked. A maintainer reply that only @mentions somebody else doesn't count.
 3. Quoted lines (`> ...`) and code blocks are ignored, so quoting someone's claim doesn't make it yours.
 4. A comment claim expires `claim-expiry-days` (7) after the claimer's last comment on the issue. Commenting "still working on this" keeps it alive.
@@ -124,6 +124,7 @@ All inputs are optional.
 | `claim-phrases-replace`   | `false`                       | Use only your `claim-phrases`, drop the built-in ones                                       |
 | `claim-expiry-days`       | `7`                           | Days without activity before a comment claim expires                                        |
 | `claim-requires-ack`      | `true`                        | Only count comment claims a maintainer replied to                                           |
+| `assignment-expiry`       | `false`                       | Let assignments expire after `claim-expiry-days` too, using the issue timeline              |
 | `require-claim`           | `false`                       | Flag PRs whose author never claimed the issue                                               |
 | `maintainer-associations` | `OWNER, MEMBER, COLLABORATOR` | Who counts as a maintainer when acknowledging claims                                        |
 | `pr-burst-threshold`      | `10`                          | Max PRs in 24 hours before flagging                                                         |
@@ -211,7 +212,6 @@ GitHub's own interaction limits can restrict who opens PRs at all. That works, b
 
 Rough order, nothing promised:
 
-- Use the issue's assignment timeline so assignments can expire too
 - Recognise "unassign me" or "no longer working on this" as giving up a claim
 - A `claims` command that lists active claims across open issues
 - Per-check exemptions by label (for example `doorman: skip`)

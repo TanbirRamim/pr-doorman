@@ -38,8 +38,11 @@ inputs:
     description: 'Use only claim-phrases and drop the built-in phrases.'
     default: 'false'
   claim-expiry-days:
-    description: 'A comment claim expires after this many days without activity from the claimer. Assignments never expire.'
+    description: 'A comment claim expires after this many days without activity from the claimer. Assignments only expire with assignment-expiry.'
     default: '7'
+  assignment-expiry:
+    description: "Let assignments expire too: claim-expiry-days after the assignment or the assignee's last comment, read from the issue timeline."
+    default: 'false'
   claim-requires-ack:
     description: 'Only count comment claims that a maintainer replied to.'
     default: 'true'
