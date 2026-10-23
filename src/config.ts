@@ -7,6 +7,7 @@ export interface Config {
   maintainerAssociations: string[];
 
   claimPhrases: RegExp[];
+  releasePhrases: RegExp[];
   claimExpiryDays: number;
   claimRequiresAck: boolean;
   assignmentExpiry: boolean;
@@ -53,6 +54,16 @@ export const DEFAULT_CLAIM_PHRASES: string[] = [
   String.raw`\blet me (work on|take|try|handle|tackle) (this|it)\b`,
   String.raw`\b(i'?ll|i will|i can|let me|can i|could i) pick (this|it) up\b`,
   String.raw`^\s*/(assign|take|claim)\b`,
+];
+
+/** Phrases a claimer uses to give an issue back. Same matching rules as claim phrases. */
+export const DEFAULT_RELEASE_PHRASES: string[] = [
+  String.raw`\bunassign me\b`,
+  String.raw`\b(i'?m|i am) no longer working on (this|it)\b`,
+  String.raw`\bno longer (working on|able to work on) (this|it)\b`,
+  String.raw`\b(i'?ll|i will|i'?m going to|i have to|i need to) (drop|give up|step away from|stop working on) (this|it)\b`,
+  String.raw`\b(someone|somebody|anyone) else (can|could|is free to) (take|pick up|grab|work on) (this|it)\b`,
+  String.raw`^\s*/unassign\b`,
 ];
 
 export const DEFAULT_LABELS: Record<string, string> = {
@@ -167,6 +178,11 @@ export function parseConfig(getInput: GetInput): Config {
   const replacePhrases = bool('claim-phrases-replace', getInput('claim-phrases-replace'), false);
   const phraseSources = replacePhrases ? extraPhrases : [...DEFAULT_CLAIM_PHRASES, ...extraPhrases];
 
+  const extraRelease = getInput('release-phrases')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
   const skipRaw = getInput('skip-associations');
   const maintRaw = getInput('maintainer-associations');
 
@@ -183,6 +199,7 @@ export function parseConfig(getInput: GetInput): Config {
     maintainerAssociations: maintRaw.trim() ? upper(list(maintRaw)) : ['OWNER', 'MEMBER', 'COLLABORATOR'],
 
     claimPhrases: regexes('claim-phrases', phraseSources),
+    releasePhrases: regexes('release-phrases', [...DEFAULT_RELEASE_PHRASES, ...extraRelease]),
     claimExpiryDays: int('claim-expiry-days', getInput('claim-expiry-days'), 7),
     claimRequiresAck: bool('claim-requires-ack', getInput('claim-requires-ack'), true),
     assignmentExpiry: bool('assignment-expiry', getInput('assignment-expiry'), false),

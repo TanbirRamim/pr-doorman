@@ -101,7 +101,8 @@ pr-doorman reads the comments on the linked issue (the first one, if the PR clos
 2. A comment matching a claim phrase is a claim. By default it only counts if a maintainer (`OWNER`, `MEMBER` or `COLLABORATOR` association) replied afterwards, either mentioning the claimer or with no mentions at all before anyone else asked. A maintainer reply that only @mentions somebody else doesn't count.
 3. Quoted lines (`> ...`) and code blocks are ignored, so quoting someone's claim doesn't make it yours.
 4. A comment claim expires `claim-expiry-days` (7) after the claimer's last comment on the issue. Commenting "still working on this" keeps it alive.
-5. Only comments from before the PR was opened count.
+5. A comment claim ends right away when the claimer gives it up, for example "unassign me", "I'm no longer working on this", "I'll drop this" or "someone else can take it". Add your own with `release-phrases`. A give-up from anyone else doesn't count.
+6. Only comments from before the PR was opened count.
 
 The check flags the PR when someone else holds an active claim that came before the author's own claim (if they made one). With `require-claim: true` it also flags PRs where the author never claimed the issue at all.
 
@@ -122,6 +123,7 @@ All inputs are optional.
 | `diff-scope`              | `note`                        | Severity for the diff-scope check                                                           |
 | `claim-phrases`           |                               | Extra claim regexes, one per line, case-insensitive                                         |
 | `claim-phrases-replace`   | `false`                       | Use only your `claim-phrases`, drop the built-in ones                                       |
+| `release-phrases`         |                               | Extra regexes for giving up a claim, one per line, case-insensitive                         |
 | `claim-expiry-days`       | `7`                           | Days without activity before a comment claim expires                                        |
 | `claim-requires-ack`      | `true`                        | Only count comment claims a maintainer replied to                                           |
 | `assignment-expiry`       | `false`                       | Let assignments expire after `claim-expiry-days` too, using the issue timeline              |

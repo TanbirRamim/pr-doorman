@@ -4,6 +4,10 @@ All notable changes to this project are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- A claimer can give up a comment claim with phrases like "unassign me" or "no longer working on this", and the claim ends right away instead of waiting to expire. Extra phrases go in the new `release-phrases` input (#8).
+
 ## [0.3.0]
 
 ### Added
