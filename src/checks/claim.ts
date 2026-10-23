@@ -15,6 +15,8 @@ export interface Claim {
 
 export interface ClaimOptions {
   phrases: RegExp[];
+  /** Phrases that give a claim back. A match by the claimer after their claim ends it. */
+  releasePhrases?: RegExp[];
   maintainerAssociations: string[];
   /** Only comments made before this time can count as claims (the PR's creation time). */
   before: string;
@@ -64,6 +66,10 @@ export function findClaims(issue: LinkedIssue, opts: ClaimOptions): Claim[] {
   comments.forEach((c, i) => {
     const user = c.author.toLowerCase();
     if (isMaintainer(c) || Date.parse(c.createdAt) > cutoff) return;
+    if (opts.releasePhrases?.length && isClaimComment(c.body, opts.releasePhrases)) {
+      if (claims.get(user)?.source === 'comment') claims.delete(user);
+      return;
+    }
     if (!isClaimComment(c.body, opts.phrases)) return;
     if (claims.has(user)) return; // keep the earliest claim (or the assignment)
 
@@ -112,6 +118,7 @@ export interface ClaimInput {
   owner: string;
   repo: string;
   phrases: RegExp[];
+  releasePhrases?: RegExp[];
   maintainerAssociations: string[];
   expiryDays: number;
   requiresAck: boolean;
@@ -164,6 +171,7 @@ export function checkClaim(input: ClaimInput): CheckResult | null {
     { ...issue, assignees: [] },
     {
       phrases: input.phrases,
+      releasePhrases: input.releasePhrases,
       maintainerAssociations: input.maintainerAssociations,
       before: input.prCreatedAt,
     },

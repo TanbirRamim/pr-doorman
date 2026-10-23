@@ -37,6 +37,9 @@ inputs:
   claim-phrases-replace:
     description: 'Use only claim-phrases and drop the built-in phrases.'
     default: 'false'
+  release-phrases:
+    description: 'Extra regexes (one per line, case-insensitive) that count as giving up a claim, like "unassign me". Added to the built-in English phrases.'
+    default: ''
   claim-expiry-days:
     description: 'A comment claim expires after this many days without activity from the claimer. Assignments only expire with assignment-expiry.'
     default: '7'

@@ -248,3 +248,69 @@ describe('assignment expiry', () => {
     expect(r?.status).toBe(plain?.status);
   });
 });
+
+describe('giving up a claim', () => {
+  const release = config().releasePhrases;
+  const before = '2026-10-01T12:00:00Z';
+  const opts = { phrases, releasePhrases: release, maintainerAssociations: MAINT, before };
+
+  it.each([
+    'Please unassign me',
+    "Sorry, I'm no longer working on this.",
+    "I'll drop this, got busy",
+    'Someone else can take it.',
+    '/unassign',
+  ])('matches %j', (body) => {
+    expect(isClaimComment(body, release)).toBe(true);
+    expect(isClaimComment(body, phrases)).toBe(false);
+  });
+
+  it('ends the claim when the claimer gives up', () => {
+    const i = issue({
+      comments: [
+        c('a', "I'd like to work on this", '2026-09-28T10:00:00Z'),
+        c('mo', '@a go ahead', '2026-09-28T11:00:00Z', 'OWNER'),
+        c('a', 'No longer working on this, sorry', '2026-09-29T10:00:00Z'),
+      ],
+    });
+    expect(findClaims(i, opts)).toEqual([]);
+    expect(checkClaim(input({ linkedIssue: { ok: true, value: i }, releasePhrases: release }))?.status).toBe('pass');
+  });
+
+  it('ignores a give-up from someone other than the claimer', () => {
+    const i = issue({
+      comments: [
+        c('a', "I'd like to work on this", '2026-09-28T10:00:00Z'),
+        c('mo', '@a go ahead', '2026-09-28T11:00:00Z', 'OWNER'),
+        c('b', 'Someone else can take it', '2026-09-29T10:00:00Z'),
+      ],
+    });
+    expect(findClaims(i, opts).map((x) => x.user)).toEqual(['a']);
+  });
+
+  it('ignores quoted give-up text', () => {
+    const i = issue({
+      comments: [
+        c('a', "I'd like to work on this", '2026-09-28T10:00:00Z'),
+        c('a', '> unassign me\n\nWhat does this mean?', '2026-09-29T10:00:00Z'),
+      ],
+    });
+    expect(findClaims(i, opts).map((x) => x.user)).toEqual(['a']);
+  });
+
+  it('lets the claimer claim again later', () => {
+    const i = issue({
+      comments: [
+        c('a', "I'd like to work on this", '2026-09-28T10:00:00Z'),
+        c('a', 'unassign me', '2026-09-28T12:00:00Z'),
+        c('a', "Actually I'll take it", '2026-09-29T10:00:00Z'),
+      ],
+    });
+    expect(findClaims(i, opts)[0]).toMatchObject({ user: 'a', at: '2026-09-29T10:00:00Z' });
+  });
+
+  it('accepts extra phrases from release-phrases', () => {
+    const extra = config({ 'release-phrases': 'je laisse tomber' }).releasePhrases;
+    expect(isClaimComment('Je laisse tomber', extra)).toBe(true);
+  });
+});

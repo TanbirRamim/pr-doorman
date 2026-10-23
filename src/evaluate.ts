@@ -40,6 +40,7 @@ export function runChecks(facts: Facts, config: Config): CheckResult[] {
       owner: pr.owner,
       repo: pr.repo,
       phrases: config.claimPhrases,
+      releasePhrases: config.releasePhrases,
       maintainerAssociations: config.maintainerAssociations,
       expiryDays: config.claimExpiryDays,
       requiresAck: config.claimRequiresAck,
